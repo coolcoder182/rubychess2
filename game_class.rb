@@ -28,7 +28,7 @@ class Game
       end
       # player_turn to implement later
       selected_piece = @board[start_pos]
-      moves = @board.possible_moves(selected_piece)
+      moves = selected_piece.generate_moves(@board)
       if moves.empty?
         puts "That piece has no valid moves. Press Enter and choose again"
         gets
@@ -47,12 +47,10 @@ class Game
         if move[:type] == :invalid
           puts move[:message]
           gets
-          selected_piece = piece
-
         elsif move[:type] == :reselect
           selected_piece = move[:selected_piece]
         end
-        moves = @board.possible_moves(selected_piece)
+        moves = selected_piece.generate_moves(@board)
         move = ask_for_move(moves)
         if move[:type] == :quit
           puts "exiting"

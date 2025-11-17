@@ -6,6 +6,8 @@ require './pieces/king'
 require './pieces/bishop'
 
 class Board
+  attr_accessor :en_pessant_target
+
   def initialize
     @grid = Array.new(8) { Array.new(8) }
     @en_pessant_target = nil
@@ -22,7 +24,7 @@ class Board
     @grid[row][col] = piece
   end
 
-  def piece_at(pos)
+  def piece_at?(pos)
     row, col = pos
     return nil unless (...8).include?(row) && (0...8).include?(col)
 
@@ -53,108 +55,6 @@ class Board
     @grid[end_row][end_col] = piece
     piece.pos = [end_row, end_col]
     nil
-  end
-
-  def possible_moves(piece)
-    return [] if piece.nil?
-    return pawn_moves(piece) if piece.is_a?(Pawn)
-
-    generic_piece_moves(piece)
-  end
-
-  def generic_piece_moves(piece)
-    if !piece.move_vectors.empty?
-      return generate_single_moves(piece)
-    elsif !piece.sliding_vectors.empty?
-      return generate_sliding_moves(piece)
-    end
-
-    puts "something went wrong, not moves were generated"
-    puts "press enter to continue"
-    gets
-    []
-  end
-
-  def generate_sliding_moves(piece)
-    moves = []
-    start_pos = piece.pos
-
-    piece.sliding_vectors.each do |dr, dc|
-      r, c = start_pos
-
-      loop do
-        r += dr
-        c += dc
-        new_pos = [r, c]
-
-        break unless in_bounds?(new_pos)
-
-        target = piece_at(new_pos)
-
-        if target.nil?
-          moves << new_pos
-        elsif target.color != piece.color
-          moves << new_pos   # capture
-          break
-        else
-          break              # blocked by same color
-        end
-      end
-    end
-
-    moves
-  end
-
-  def generate_single_moves(piece)
-    moves = []
-    start_pos = piece.pos
-    piece.move_vectors.each do |dir_row, dir_col|
-      new_pos = [start_pos[0] + dir_row, start_pos[1] + dir_col]
-      next unless in_bounds?(new_pos)
-
-      target = piece_at(new_pos)
-
-      moves << new_pos if target.nil? || target.color != piece.color
-    end
-    moves
-  end
-
-  def pawn_moves(piece)
-    moves = []
-    row, col = piece.pos
-    dir = piece.color == :white ? -1 : 1
-    start_row = piece.color == :white ? 6 : 1
-
-    one_forward = [row + dir, col]
-    if in_bounds?(one_forward) && piece_at(one_forward).nil?
-      moves << one_forward
-      two_forward = [row + 2 * dir, col]
-      moves << two_forward if row == start_row && piece_at(two_forward).nil?
-    end
-
-    piece.capture_vectors.each do |diag_row, diag_col|
-      pos = [row + diag_row, col + diag_col]
-      if in_bounds?(pos)
-        target = piece_at(pos)
-        moves << pos if target && target.color != piece.color
-      end
-    end
-
-    moves.concat(en_pessant_moves(piece))
-    moves
-  end
-
-  def en_pessant_moves(piece)
-    row, col = piece.pos
-    dir = piece.color == :white ? -1 : 1
-    target = @en_pessant_target
-    return [] unless target
-
-    target_r, target_c = target
-
-    return [[target_r, target_c]] if target_r == row + dir && (target_c - col).abs == 1
-
-    []
   end
 
   def print_screen(highlighted_positions = [])
@@ -191,10 +91,6 @@ class Board
     row, col = pos
     row.between?(0, 7) && col.between?(0, 7)
   end
-
-  # def legal_moves_for(piece)
-  #   piece.moves.select { |pos| in_bounds?(pos) }
-  # end
 
   def setup_board
     # black pieces
