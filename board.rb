@@ -57,7 +57,37 @@ class Board
     @grid[end_row][end_col] = piece
     piece.pos = [end_row, end_col]
     piece.has_moved = true
+
+    promote_pawn_if_possible(piece) if piece.is_a?(Pawn)
+
     nil
+  end
+
+  def promote_pawn_if_possible(piece)
+    row, col = piece.pos
+    promotion_row = piece.color == :white ? 0 : 7
+    return unless row == promotion_row
+
+    new_piece = prompt_for_promotion(piece.color, [row, col])
+    @grid[row][col] = new_piece
+  end
+
+  def prompt_for_promotion(color, pos)
+    puts "Pawn promotion! Choos piece (Q, R, B, N)"
+    choice = nil
+    loop do
+      choice = gets.chomp.upcase
+      break if %w[Q R B N].include?(choice)
+
+      puts "Invalid choice. Enter Q, R, B, or N:"
+    end
+
+    case choice
+    when "Q" then Queen.new(color, pos)
+    when "R" then Rook.new(color, pos)
+    when "B" then Bishop.new(color, pos)
+    when "N" then Knight.new(color, pos)
+    end
   end
 
   def castle_rook(king_start, king_end)
@@ -127,22 +157,22 @@ class Board
 
   def setup_board
     # black pieces
-    @grid[0][0] = Rook.new(:black, [0, 0])
-    @grid[0][1] = Knight.new(:black, [0, 1])
-    @grid[0][2] = Bishop.new(:black, [0, 2])
-    @grid[0][3] = Queen.new(:black, [0, 3])
-    @grid[0][4] = King.new(:black, [0, 4])
-    @grid[0][5] = Bishop.new(:black, [0, 5])
-    @grid[0][6] = Knight.new(:black, [0, 6])
-    @grid[0][7] = Rook.new(:black, [0, 7])
-    @grid[1][0] = Pawn.new(:black, [1, 0])
-    @grid[1][1] = Pawn.new(:black, [1, 1])
-    @grid[1][2] = Pawn.new(:black, [1, 2])
-    @grid[1][3] = Pawn.new(:black, [1, 3])
-    @grid[1][4] = Pawn.new(:black, [1, 4])
-    @grid[1][5] = Pawn.new(:black, [1, 5])
-    @grid[1][6] = Pawn.new(:black, [1, 6])
-    @grid[1][7] = Pawn.new(:black, [1, 7])
+    # @grid[0][0] = Rook.new(:black, [0, 0])
+    # @grid[0][1] = Knight.new(:black, [0, 1])
+    # @grid[0][2] = Bishop.new(:black, [0, 2])
+    # @grid[0][3] = Queen.new(:black, [0, 3])
+    # @grid[0][4] = King.new(:black, [0, 4])
+    # @grid[0][5] = Bishop.new(:black, [0, 5])
+    # @grid[0][6] = Knight.new(:black, [0, 6])
+    # @grid[0][7] = Rook.new(:black, [0, 7])
+    # @grid[1][0] = Pawn.new(:black, [1, 0])
+    # @grid[1][1] = Pawn.new(:black, [1, 1])
+    # @grid[1][2] = Pawn.new(:black, [1, 2])
+    # @grid[1][3] = Pawn.new(:black, [1, 3])
+    # @grid[1][4] = Pawn.new(:black, [1, 4])
+    # @grid[1][5] = Pawn.new(:black, [1, 5])
+    # @grid[1][6] = Pawn.new(:black, [1, 6])
+    # @grid[1][7] = Pawn.new(:black, [1, 7])
 
     # white pieces
     @grid[6][0] = Pawn.new(:white, [6, 0])
