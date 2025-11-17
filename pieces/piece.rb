@@ -21,4 +21,12 @@ class Piece
   def to_s
     symbol
   end
+
+  def sliding_vectors
+    []
+  end
+
+  def move_vectors
+    []
+  end
 end

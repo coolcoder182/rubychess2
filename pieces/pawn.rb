@@ -4,12 +4,7 @@ class Pawn < Piece
     "♟"
   end
 
-  def moves
-    row, col = pos
-    direction = (color == :white ? -1 : 1)
-    [
-      [row + direction, col],
-      [row + 2 * direction, col]
-    ]
+  def capture_vectors
+    color == :white ? [[-1, -1], [-1, 1]] : [[1, -1], [1, 1]]
   end
 end
