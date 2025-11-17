@@ -1,10 +1,11 @@
 class Piece
-  attr_accessor :pos, :color
+  attr_accessor :pos, :color, :has_moved
 
   MOVE_VECTORS = []
   def initialize(color, pos)
     @pos = pos
     @color = color
+    @has_moved = false
   end
 
   def moves(board)
@@ -28,6 +29,20 @@ class Piece
     []
   end
 
+  def generate_single_moves(board, move_vectors)
+    moves = []
+    start_pos = pos
+    move_vectors.each do |dir_row, dir_col|
+      new_pos = [start_pos[0] + dir_row, start_pos[1] + dir_col]
+      next unless board.in_bounds?(new_pos)
+
+      target = board.piece_at(new_pos)
+
+      moves << new_pos if target.nil? || target.color != color
+    end
+    moves
+  end
+
   def generate_sliding_moves(board, move_vectors)
     moves = []
     start_pos = pos
@@ -42,7 +57,7 @@ class Piece
 
         break unless board.in_bounds?(new_pos)
 
-        target = board.piece_at?(new_pos)
+        target = board.piece_at(new_pos)
 
         if target.nil?
           moves << new_pos

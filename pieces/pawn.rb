@@ -12,16 +12,16 @@ class Pawn < Piece
     start_row = color == :white ? 6 : 1
 
     one_forward = [row + dir, col]
-    if board.in_bounds?(one_forward) && board.piece_at?(one_forward).nil?
+    if board.in_bounds?(one_forward) && board.piece_at(one_forward).nil?
       moves << one_forward
       two_forward = [row + 2 * dir, col]
-      moves << two_forward if row == start_row && board.piece_at?(two_forward).nil?
+      moves << two_forward if row == start_row && board.piece_at(two_forward).nil?
     end
 
     capture_vectors.each do |diag_row, diag_col|
       pos = [row + diag_row, col + diag_col]
       if board.in_bounds?(pos)
-        target = board.piece_at?(pos)
+        target = board.piece_at(pos)
         moves << pos if target && target.color != color
       end
     end

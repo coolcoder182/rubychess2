@@ -59,7 +59,7 @@ class Game
       end
 
       @board.move_piece(selected_piece.pos, move[:selected_move])
-      swap_turns
+      # swap_turns
     end
   end
 

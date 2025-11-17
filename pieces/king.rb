@@ -8,16 +8,64 @@ class King < Piece
   end
 
   def generate_moves(board)
+    moves = generate_single_moves(board, MOVE_VECTORS)
+    moves.concat(castle_moves(board))
+  end
+
+  def castle_moves(board)
+    return [] if has_moved
+
     moves = []
-    start_pos = pos
-    MOVE_VECTORS.each do |dir_row, dir_col|
-      new_pos = [start_pos[0] + dir_row, start_pos[1] + dir_col]
-      next unless board.in_bounds?(new_pos)
 
-      target = board.piece_at?(new_pos)
+    moves << kingside_castle if can_castle_kingside?(board)
+    moves << queenside_castle if can_castle_queenside?(board)
+    moves.compact
+  end
 
-      moves << new_pos if target.nil? || target.color != color
-    end
-    moves
+  def kingside_castle
+    row, col = pos
+    [row, col + 2]
+  end
+
+  def queenside_castle
+    row, col = pos
+    [row, col - 2]
+  end
+
+  def can_castle_kingside?(board)
+    row, col = pos
+    rook_pos = [row, 7]
+    rook = board.piece_at(rook_pos)
+
+    return false unless rook.is_a?(Rook)
+    return false if rook.has_moved
+
+    return false unless board.empty?([row, col + 1])
+    return false unless board.empty?([row, col + 2])
+
+    return false if board.square_attacked?(pos, color)
+    return false if board.square_attacked?([row, col + 1], color)
+    return false if board.square_attacked?([row, col + 2], color)
+
+    true
+  end
+
+  def can_castle_queenside?(board)
+    row, col = pos
+    rook_pos = [row, 0]
+    rook = board.piece_at(rook_pos)
+
+    return false unless rook.is_a?(Rook)
+    return false if rook.has_moved
+
+    return false unless board.empty?([row, col - 1])
+    return false unless board.empty?([row, col - 2])
+    return false unless board.empty?([row, col - 3])
+
+    return false if board.square_attacked?(pos, color)
+    return false if board.square_attacked?([row, col - 1], color)
+    return false if board.square_attacked?([row, col - 2], color)
+
+    true
   end
 end

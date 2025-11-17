@@ -24,7 +24,7 @@ class Board
     @grid[row][col] = piece
   end
 
-  def piece_at?(pos)
+  def piece_at(pos)
     row, col = pos
     return nil unless (...8).include?(row) && (0...8).include?(col)
 
@@ -41,6 +41,8 @@ class Board
       captured_pawn_row = piece.color == :white ? end_pos[0] + 1 : end_pos[0] - 1
       captured_pawn_col = end_pos[1]
       @grid[captured_pawn_row][captured_pawn_col] = nil
+    elsif piece.is_a?(King) && (start_col - end_col).abs == 2
+      castle_rook(start_pos, end_pos)
     end
 
     # en_pessant
@@ -54,7 +56,38 @@ class Board
     @grid[start_row][start_col] = nil
     @grid[end_row][end_col] = piece
     piece.pos = [end_row, end_col]
+    piece.has_moved = true
     nil
+  end
+
+  def castle_rook(king_start, king_end)
+    row = king_start[0]
+
+    if king_end[1] > king_start[1]
+      # king side castle
+      rook_start = [row, 7]
+      rook_end = [row, 5]
+    else
+      rook_start = [row, 0]
+      rook_end = [row, 3]
+    end
+
+    rook = piece_at(rook_start)
+    @grid[rook_end[0]][rook_end[1]] = rook
+    @grid[rook_start[0]][rook_start[1]] = nil
+    rook.pos = rook_end
+    rook.has_moved = true
+  end
+
+  def empty?(pos)
+    return unless @grid[pos[0]][pos[1]].nil?
+
+    true
+  end
+
+  def square_attacked?(pos, color)
+    # need to implement
+    false
   end
 
   def print_screen(highlighted_positions = [])
@@ -121,12 +154,12 @@ class Board
     @grid[6][6] = Pawn.new(:white, [6, 6])
     @grid[6][7] = Pawn.new(:white, [6, 7])
     @grid[7][0] = Rook.new(:white, [7, 0])
-    @grid[7][1] = Knight.new(:white, [7, 1])
-    @grid[7][2] = Bishop.new(:white, [7, 2])
-    @grid[7][3] = Queen.new(:white, [7, 3])
+    # @grid[7][1] = Knight.new(:white, [7, 1])
+    # @grid[7][2] = Bishop.new(:white, [7, 2])
+    # @grid[7][3] = Queen.new(:white, [7, 3])
     @grid[7][4] = King.new(:white, [7, 4])
-    @grid[7][5] = Bishop.new(:white, [7, 5])
-    @grid[7][6] = Knight.new(:white, [7, 6])
+    # @grid[7][5] = Bishop.new(:white, [7, 5])
+    # @grid[7][6] = Knight.new(:white, [7, 6])
     @grid[7][7] = Rook.new(:white, [7, 7])
   end
 end
